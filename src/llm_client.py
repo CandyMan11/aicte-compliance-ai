@@ -1,7 +1,9 @@
 import requests
-from config import LLM_API_KEY, LLM_API_URL, MODEL_NAME
+from src.config import LLM_API_KEY, LLM_API_URL, MODEL_NAME
 
-def call_llm(prompt):
+
+def call_llm(prompt: str):
+
     headers = {
         "Authorization": f"Bearer {LLM_API_KEY}",
         "Content-Type": "application/json"
@@ -16,5 +18,11 @@ def call_llm(prompt):
         "temperature": 0.2
     }
 
-    response = requests.post(LLM_API_URL, headers=headers, json=payload)
+    response = requests.post(
+        LLM_API_URL,
+        headers=headers,
+        json=payload,
+        timeout=60
+    )
+
     return response.json()

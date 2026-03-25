@@ -7,6 +7,7 @@ from src.prompt_builder import build_prompt
 from src.llm_client import call_llm
 from src.response_parser import parse_llm_response
 from src.scorer import score_response
+from src.report_generator import export_to_excel
 
 
 def main():
@@ -85,6 +86,9 @@ def main():
 
         # clean spacing between entries
         print("\n" + "-" * 60 + "\n")
+
+    # 7. Export report
+    export_to_excel(results)
 
 
 if __name__ == "__main__":

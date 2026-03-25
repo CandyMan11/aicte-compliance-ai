@@ -5,11 +5,13 @@ from src.image_processor import load_all_images
 from src.evidence_combiner import combine_evidence
 from src.prompt_builder import build_prompt
 from src.llm_client import call_llm
+from src.response_parser import parse_llm_response
+from src.scorer import score_response
 
 
 def main():
 
-    print("\n--- AICTE Compliance Automation Pipeline ---\n")
+    print("\n=== AICTE Compliance Automation Pipeline ===\n")
 
     # 1. Load questions
     print("Loading questions...")
@@ -31,21 +33,58 @@ def main():
     evidence = combine_evidence(pdfs, images)
     print("Evidence combined successfully.\n")
 
-    # 5. Select first question
-    print("Preparing prompt...")
-    first_question = questions.iloc[0].values[0]
+    # 5. Evaluate all questions
+    results = []
 
-    # 6. Build LLM prompt
-    prompt = build_prompt(first_question, evidence)
+    print("Starting evaluation for all questions...\n")
 
-    print("Prompt built successfully.\n")
+    for index, row in questions.iterrows():
 
-    # 7. Call LLM
-    print("Calling LLM API...")
-    result = call_llm(prompt)
+        question = row.values[0]
 
-    print("\n--- LLM RESPONSE ---\n")
-    print(result)
+        print(f"\nProcessing Question {index + 1}:")
+        print(question + "\n")
+
+        # Build prompt
+        prompt = build_prompt(question, evidence)
+
+        # Call LLM (mocked / real later)
+        result = call_llm(prompt)
+
+        # Parse response
+        parsed_result = parse_llm_response(result)
+
+        # Score response
+        scored_result = score_response(parsed_result)
+
+        # Store result
+        results.append({
+            "question": question,
+            "final_decision": scored_result["final_decision"],
+            "confidence_score": scored_result["confidence_score"],
+            "reasoning": scored_result["reasoning"],
+            "suggestions": scored_result["suggestions"]
+        })
+
+        print(f"→ Decision: {scored_result['final_decision']}")
+
+        # spacing between questions
+        print("\n" + "=" * 60 + "\n")
+
+    # 6. Final formatted report
+    print("\n=== FINAL COMPLIANCE REPORT ===\n")
+
+    for i, r in enumerate(results, start=1):
+
+        print(f"Question {i}: {r['question']}\n")
+
+        print(f"Decision          : {r['final_decision']}")
+        print(f"Confidence Score  : {r['confidence_score']}")
+        print(f"Reasoning         : {r['reasoning']}")
+        print(f"Suggestions       : {r['suggestions']}")
+
+        # clean spacing between entries
+        print("\n" + "-" * 60 + "\n")
 
 
 if __name__ == "__main__":
